@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>QUANT EDGE | نظام التداول الآلي للذهب</title>
+  <style>
+    :root {
+      --bg-black: #08080a;
+      --bg-card: #121216;
+      --bg-soft: #191920;
+      --gold: #d4af37;
+      --gold-light: #f5d76e;
+      --gold-glow: rgba(212, 175, 55, 0.18);
+      --border: rgba(212, 175, 55, 0.24);
+      --text: #f8f7f3;
+      --muted: #a39f93;
+      --green: #22c55e;
+      --red: #ef4444;
+      --yellow: #eab308;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Tahoma, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #211a06 0%, var(--bg-black) 42%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 14px 14px 36px;
+    }
+
+    .app-wrap {
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    /* شاشة تسجيل الدخول */
+    .login-card {
+      margin-top: 44px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 26px 20px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65);
+    }
+
+    .brand-badge {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: var(--gold-glow);
+      border: 1px solid var(--border);
+      color: var(--gold-light);
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .login-title {
+      font-size: 1.55rem;
+      font-weight: 900;
+      color: var(--gold-light);
+      margin-bottom: 6px;
+    }
+
+    .login-desc {
+      font-size: 0.86rem;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .input-group {
+      margin-bottom: 14px;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .input-control {
+      width: 100%;
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 13px 14px;
+      font-size: 0.96rem;
+      outline: none;
+    }
+
+    .input-control:focus {
+      border-color: var(--gold-light);
+    }
+
+    .error-msg {
+      color: #f87171;
+      font-size: 0.8rem;
+      margin-bottom: 12px;
+      display: none;
+    }
+
+    /* واجهة لوحة التحكم */
+    #dashboardView {
+      display: none;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+    }
+
+    .top-title {
+      font-size: 1.15rem;
+      font-weight: 900;
+      color: var(--gold-light);
+    }
+
+    .top-sub {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .conn-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 11px;
+      border-radius: 999px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      background: rgba(34, 197, 94, 0.14);
+      color: #4ade80;
+      border: 1px solid rgba(74, 222, 128, 0.35);
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .status-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.84rem;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .status-line strong {
+      font-size: 0.9rem;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 12px;
+      padding: 13px 14px;
+      font-size: 0.9rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.12s ease, opacity 0.2s ease;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-gold {
+      width: 100%;
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      color: #09090b;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .btn-dark {
+      background: var(--bg-soft);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-danger {
+      width: 100%;
+      margin-top: 10px;
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.45);
+    }
+
+    .panic-box {
+      display: none;
+      background: rgba(239, 68, 68, 0.16);
+      border: 1px solid rgba(239, 68, 68, 0.45);
+      color: #fca5a5;
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .kpi-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .kpi-label {
+      font-size: 0.76rem;
+      color: var(--muted);
+    }
+
+    .kpi-val {
+      font-size: 1.22rem;
+      font-weight: 900;
+      color: var(--gold-light);
+      margin-top: 6px;
+    }
+
+    /* التبويبات */
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 6px;
+      margin-bottom: 12px;
+    }
+
+    .tab-btn {
+      background: transparent;
+      color: var(--muted);
+      border: none;
+      border-radius: 11px;
+      padding: 10px 6px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      color: #09090b;
+    }
+
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    .section-heading {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--gold-light);
+      margin-bottom: 12px;
+    }
+
+    .trade-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-soft);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 13px;
+      padding: 12px;
+      margin-bottom: 8px;
+    }
+
+    .trade-main {
+      font-size: 0.86rem;
+      font-weight: 700;
+    }
+
+    .trade-sub {
+      font-size: 0.74rem;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .pnl-pos {
+      color: #4ade80;
+      font-weight: 800;
+      font-size: 0.9rem;
+    }
+
+    .pnl-neg {
+      color: #f87171;
+      font-weight: 800;
+      font-size: 0.9rem;
+    }
+
+    .slider-item {
+      margin-bottom: 14px;
+    }
+
+    .slider-head {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.84rem;
+      margin-bottom: 6px;
+    }
+
+    .slider-val {
+      color: var(--gold-light);
+      font-weight: 800;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--gold);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1b1708;
+      color: var(--gold-light);
+      border: 1px solid var(--gold);
+      padding: 10px 16px;
+      border-radius: 12px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      display: none;
+      z-index: 99;
+    }
+
+    .logout-link {
+      width: 100%;
+      margin-top: 8px;
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 0.8rem;
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-wrap">
+    <!-- شاشة تسجيل الدخول -->
+    <section class="login-card" id="loginView">
+      <div class="brand-badge">QUANT EDGE • نظام خاص</div>
+      <h1 class="login-title">تسجيل الدخول</h1>
+      <p class="login-desc">
+        لوحة التحكم الخاصة بمراقبة وإدارة روبوت تداول الذهب <strong>XAUUSD</strong> على منصة XM MT5 من الآيفون.
+      </p>
+
+      <div class="input-group">
+        <label for="accessCode">رمز الدخول الخاص</label>
+        <input type="password" id="accessCode" class="input-control" placeholder="أدخل رمز الدخول (التجريبي: 7777)" />
+      </div>
+
+      <div class="error-msg" id="loginError">رمز الدخول غير صحيح. جرّب الرمز الافتراضي: 7777</div>
+      <button class="btn btn-gold" onclick="handleLogin()">دخول إلى لوحة التحكم</button>
+    </section>
+
+    <!-- لوحة التحكم الرئيسية -->
+    <section id="dashboardView">
+      <header class="top-bar">
+        <div>
+          <div class="top-title">QUANT EDGE</div>
+          <div class="top-sub">الذهب XAUUSD • وسيط XM (MT5)</div>
+        </div>
+        <div class="conn-badge" id="mt5Badge">
+          <span class="dot"></span>
+          <span id="mt5Text">MT5 متصل</span>
+        </div>
+      </header>
+
+      <div class="card">
+        <div class="panic-box" id="panicBox">
+          تم تفعيل <strong>الإيقاف الطارئ</strong>: تم إيقاف التداول الآلي وإغلاق الصفقات المفتوحة.
+        </div>
+
+        <div class="status-line">
+          <span>حالة المحرك الآلي:</span>
+          <strong id="botStatusLabel" style="color: var(--green);">نشط (الجلسة الأمريكية)</strong>
+        </div>
+
+        <div class="grid-2">
+          <button class="btn btn-gold" onclick="setBotActive(true)">تشغيل الروبوت</button>
+          <button class="btn btn-dark" onclick="setBotActive(false)">إيقاف مؤقت</button>
+        </div>
+
+        <button class="btn btn-danger" onclick="activateEmergencyStop()">إيقاف طارئ وإغلاق الصفقات</button>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-box">
+          <div class="kpi-label">رصيد الحساب (Balance)</div>
+          <div class="kpi-val" id="balanceDisplay">$10,000.00</div>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-label">الربح / الخسارة العائمة</div>
+          <div class="kpi-val pnl-pos" id="floatingDisplay">+$185.00</div>
+        </div>
+      </div>
+
+      <!-- التبويبات -->
+      <nav class="tabs">
+        <button class="tab-btn active" data-tab="openTab" onclick="switchTab('openTab', this)">الصفقات المفتوحة</button>
+        <button class="tab-btn" data-tab="historyTab" onclick="switchTab('historyTab', this)">سجل التداول</button>
+        <button class="tab-btn" data-tab="settingsTab" onclick="switchTab('settingsTab', this)">الإعدادات</button>
+      </nav>
+
+      <!-- تبويب الصفقات المفتوحة -->
+      <div class="tab-panel active" id="openTab">
+        <div class="card">
+          <div class="section-heading">الصفقات النشطة حالياً</div>
+          <div id="openPositionsList">
+            <div class="trade-row">
+              <div>
+                <div class="trade-main">شراء XAUUSD • 0.15 Lot</div>
+                <div class="trade-sub">أورد بلوك + شمعة ريجيكشن • وقف 2648.50 • هدف 2663.50</div>
+              </div>
+              <div class="pnl-pos">+$185.00</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- تبويب سجل التداول -->
+      <div class="tab-panel" id="historyTab">
+        <div class="card">
+          <div class="section-heading">سجل الصفقات المنفذة</div>
+          <div class="trade-row">
+            <div>
+              <div class="trade-main">بيع XAUUSD (مغلقة) • 0.20 Lot</div>
+              <div class="trade-sub">هدف 1:2 • الجلسة الأمريكية</div>
+            </div>
+            <div class="pnl-pos">+$260.00</div>
+          </div>
+          <div class="trade-row">
+            <div>
+              <div class="trade-main">شراء XAUUSD (مغلقة) • 0.10 Lot</div>
+              <div class="trade-sub">هدف 1:3 • منطقة سيولة</div>
+            </div>
+            <div class="pnl-pos">+$195.00</div>
+          </div>
+          <div class="trade-row">
+            <div>
+              <div class="trade-main">بيع XAUUSD (مغلقة) • 0.15 Lot</div>
+              <div class="trade-sub">وقف خسارة منضبط • -1.0%</div>
+            </div>
+            <div class="pnl-neg">-$100.00</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- تبويب الإعدادات -->
+      <div class="tab-panel" id="settingsTab">
+        <div class="card">
+          <div class="section-heading">إعدادات المخاطرة والتنفيذ</div>
+
+          <div class="slider-item">
+            <div class="slider-head">
+              <span>مخاطرة كل صفقة</span>
+              <span class="slider-val" id="riskValText">1.0%</span>
+            </div>
+            <input type="range" id="riskInput" min="0.25" max="3" step="0.25" value="1" oninput="syncSettingLabels()" />
+          </div>
+
+          <div class="slider-item">
+            <div class="slider-head">
+              <span>حد الخسارة اليومي</span>
+              <span class="slider-val" id="dailyLossValText">3.0%</span>
+            </div>
+            <input type="range" id="dailyLossInput" min="1" max="8" step="0.5" value="3" oninput="syncSettingLabels()" />
+          </div>
+
+          <div class="slider-item">
+            <div class="slider-head">
+              <span>نسبة العائد للمخاطرة (R:R)</span>
+              <span class="slider-val" id="rrValText">1:2.0</span>
+            </div>
+            <input type="range" id="rrInput" min="1.5" max="4" step="0.5" value="2" oninput="syncSettingLabels()" />
+          </div>
+
+          <div class="input-group">
+            <label for="sessionWindow">نافذة التداول (الجلسة الأمريكية)</label>
+            <select id="sessionWindow" class="input-control">
+              <option value="pre_us_ny" selected>ما قبل افتتاح نيويورك وحتى منتصف الجلسة</option>
+              <option value="full_us">الجلسة الأمريكية الكاملة</option>
+            </select>
+          </div>
+
+          <button class="btn btn-gold" onclick="saveBotSettings()">حفظ الإعدادات</button>
+          <button class="btn logout-link" onclick="handleLogout()">تسجيل الخروج</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="toast" id="toastBox"></div>
+
+  <script>
+    const PASSCODE = "7777";
+
+    function showToast(message) {
+      const toast = document.getElementById("toastBox");
+      toast.textContent = message;
+      toast.style.display = "block";
+      clearTimeout(window.toastTimer);
+      window.toastTimer = setTimeout(() => {
+        toast.style.display = "none";
+      }, 2400);
+    }
+
+    function handleLogin() {
+      const code = document.getElementById("accessCode").value.trim();
+      const err = document.getElementById("loginError");
+      if (code === PASSCODE) {
+        err.style.display = "none";
+        document.getElementById("loginView").style.display = "none";
+        document.getElementById("dashboardView").style.display = "block";
+        loadSavedSettings();
+      } else {
+        err.style.display = "block";
+      }
+    }
+
+    function handleLogout() {
+      document.getElementById("accessCode").value = "";
+      document.getElementById("dashboardView").style.display = "none";
+      document.getElementById("loginView").style.display = "block";
+    }
+
+    function setBotActive(active) {
+      document.getElementById("panicBox").style.display = "none";
+      const label = document.getElementById("botStatusLabel");
+      if (active) {
+        label.textContent = "نشط (الجلسة الأمريكية)";
+        label.style.color = "#4ade80";
+        showToast("تم تشغيل الروبوت على XAUUSD");
+      } else {
+        label.textContent = "متوقف مؤقتاً";
+        label.style.color = "#facc15";
+        showToast("تم إيقاف الروبوت مؤقتاً");
+      }
+    }
+
+    function activateEmergencyStop() {
+      document.getElementById("panicBox").style.display = "block";
+      const label = document.getElementById("botStatusLabel");
+      label.textContent = "إيقاف طارئ مفعّل";
+      label.style.color = "#f87171";
+      document.getElementById("floatingDisplay").textContent = "$0.00";
+      document.getElementById("floatingDisplay").className = "kpi-val";
+      document.getElementById("openPositionsList").innerHTML =
+        '<div class="trade-row"><div><div class="trade-main">لا توجد صفقات مفتوحة حالياً</div><div class="trade-sub">تم إغلاق الصفقات بفعل الإيقاف الطارئ</div></div><div class="kpi-label">0</div></div>';
+      showToast("تم تفعيل الإيقاف الطارئ");
+    }
+
+    function switchTab(tabId, btnEl) {
+      document.querySelectorAll(".tab-panel").forEach((panel) => panel.classList.remove("active"));
+      document.querySelectorAll(".tab-btn").forEach((btn) => btn.classList.remove("active"));
+      document.getElementById(tabId).classList.add("active");
+      btnEl.classList.add("active");
+    }
+
+    function syncSettingLabels() {
+      const r = parseFloat(document.getElementById("riskInput").value).toFixed(2);
+      const l = parseFloat(document.getElementById("dailyLossInput").value).toFixed(1);
+      const rr = parseFloat(document.getElementById("rrInput").value).toFixed(1);
+      document.getElementById("riskValText").textContent = r + "%";
+      document.getElementById("dailyLossValText").textContent = l + "%";
+      document.getElementById("rrValText").textContent = "1:" + rr;
+    }
+
+    function saveBotSettings() {
+      const settings = {
+        risk: document.getElementById("riskInput").value,
+        dailyLoss: document.getElementById("dailyLossInput").value,
+        rr: document.getElementById("rrInput").value,
+        session: document.getElementById("sessionWindow").value
+      };
+      localStorage.setItem("quant_edge_settings", JSON.stringify(settings));
+      showToast("تم حفظ إعدادات المخاطرة بنجاح");
+    }
+
+    function loadSavedSettings() {
+      const raw = localStorage.getItem("quant_edge_settings");
+      if (!raw) {
+        syncSettingLabels();
+        return;
+      }
+      try {
+        const s = JSON.parse(raw);
+        if (s.risk) document.getElementById("riskInput").value = s.risk;
+        if (s.dailyLoss) document.getElementById("dailyLossInput").value = s.dailyLoss;
+        if (s.rr) document.getElementById("rrInput").value = s.rr;
+        if (s.session) document.getElementById("sessionWindow").value = s.session;
+      } catch (e) {}
+      syncSettingLabels();
+    }
+  </script>
+</body>
+</html>
