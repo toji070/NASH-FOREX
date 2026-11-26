@@ -1,646 +1,253 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>QUANT EDGE | نظام التداول الآلي للذهب</title>
-  <style>
-    :root {
-      --bg-black: #08080a;
-      --bg-card: #121216;
-      --bg-soft: #191920;
-      --gold: #d4af37;
-      --gold-light: #f5d76e;
-      --gold-glow: rgba(212, 175, 55, 0.18);
-      --border: rgba(212, 175, 55, 0.24);
-      --text: #f8f7f3;
-      --muted: #a39f93;
-      --green: #22c55e;
-      --red: #ef4444;
-      --yellow: #eab308;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>QUANT EDGE | XAUUSD</title>
+<style>
+  :root {
+    --bg: #0b0d10;
+    --card: #14171c;
+    --border: #232830;
+    --gold: #e5b84b;
+    --gold-dim: rgba(229, 184, 75, 0.15);
+    --green: #22c55e;
+    --red: #ef4444;
+    --text: #f3f4f6;
+    --muted: #9ca3af;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  body { background: var(--bg); color: var(--text); padding: 16px; max-width: 480px; margin: 0 auto; }
+  
+  /* شاشة الدخول */
+  #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 85vh; text-align: center; }
+  .logo { font-size: 26px; font-weight: 800; color: var(--gold); letter-spacing: 1px; margin-bottom: 6px; }
+  .sub { color: var(--muted); font-size: 13px; margin-bottom: 28px; }
+  input[type="password"] { background: var(--card); border: 1px solid var(--border); color: var(--text); font-size: 24px; text-align: center; letter-spacing: 8px; padding: 14px; border-radius: 12px; width: 220px; margin-bottom: 16px; outline: none; }
+  input[type="password"]:focus { border-color: var(--gold); }
+  .btn-gold { background: var(--gold); color: #000; font-weight: 700; border: none; padding: 14px 36px; border-radius: 12px; font-size: 16px; cursor: pointer; width: 220px; }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Tahoma, sans-serif;
-      -webkit-tap-highlight-color: transparent;
-    }
+  /* لوحة التحكم */
+  #dashboard { display: none; flex-direction: column; gap: 14px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; }
+  .header { display: flex; justify-content: space-between; align-items: center; }
+  .badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+  .badge.online { background: rgba(34, 197, 94, 0.15); color: var(--green); }
+  .badge.offline { background: rgba(239, 68, 68, 0.15); color: var(--red); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
 
-    body {
-      background: radial-gradient(circle at top, #211a06 0%, var(--bg-black) 42%);
-      color: var(--text);
-      min-height: 100vh;
-      padding: 14px 14px 36px;
-    }
+  .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .btn { padding: 14px; border-radius: 12px; border: 1px solid var(--border); font-weight: 700; font-size: 14px; cursor: pointer; background: #1c2026; color: var(--text); transition: 0.2s; }
+  .btn.active-start { background: var(--gold); color: #000; border-color: var(--gold); }
+  .btn.active-pause { background: #374151; color: #fff; }
+  .btn-panic { grid-column: span 2; background: rgba(239, 68, 68, 0.12); color: var(--red); border-color: rgba(239, 68, 68, 0.3); margin-top: 4px; }
+  .btn-panic:active { background: var(--red); color: #fff; }
 
-    .app-wrap {
-      max-width: 520px;
-      margin: 0 auto;
-    }
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .stat-label { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+  .stat-val { font-size: 22px; font-weight: 800; direction: ltr; text-align: right; }
+  .profit-pos { color: var(--green); }
+  .profit-neg { color: var(--red); }
 
-    /* شاشة تسجيل الدخول */
-    .login-card {
-      margin-top: 44px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 22px;
-      padding: 26px 20px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65);
-    }
+  .tabs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; background: var(--card); padding: 6px; border-radius: 14px; border: 1px solid var(--border); }
+  .tab { padding: 10px 4px; text-align: center; font-size: 13px; font-weight: 700; border-radius: 10px; cursor: pointer; color: var(--muted); }
+  .tab.active { background: var(--gold); color: #000; }
 
-    .brand-badge {
-      display: inline-block;
-      padding: 5px 12px;
-      border-radius: 999px;
-      background: var(--gold-glow);
-      border: 1px solid var(--border);
-      color: var(--gold-light);
-      font-size: 0.75rem;
-      font-weight: 700;
-      margin-bottom: 12px;
-    }
+  .trade-item { background: #1a1e24; border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-top: 10px; }
+  .trade-top { display: flex; justify-content: space-between; font-weight: 700; font-size: 14px; margin-bottom: 6px; }
+  .trade-sub { font-size: 12px; color: var(--muted); line-height: 1.5; }
 
-    .login-title {
-      font-size: 1.55rem;
-      font-weight: 900;
-      color: var(--gold-light);
-      margin-bottom: 6px;
-    }
-
-    .login-desc {
-      font-size: 0.86rem;
-      color: var(--muted);
-      line-height: 1.6;
-      margin-bottom: 20px;
-    }
-
-    .input-group {
-      margin-bottom: 14px;
-    }
-
-    .input-group label {
-      display: block;
-      font-size: 0.82rem;
-      color: var(--muted);
-      margin-bottom: 6px;
-    }
-
-    .input-control {
-      width: 100%;
-      background: var(--bg-soft);
-      border: 1px solid var(--border);
-      color: var(--text);
-      border-radius: 12px;
-      padding: 13px 14px;
-      font-size: 0.96rem;
-      outline: none;
-    }
-
-    .input-control:focus {
-      border-color: var(--gold-light);
-    }
-
-    .error-msg {
-      color: #f87171;
-      font-size: 0.8rem;
-      margin-bottom: 12px;
-      display: none;
-    }
-
-    /* واجهة لوحة التحكم */
-    #dashboardView {
-      display: none;
-    }
-
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 14px 16px;
-      margin-bottom: 12px;
-    }
-
-    .top-title {
-      font-size: 1.15rem;
-      font-weight: 900;
-      color: var(--gold-light);
-    }
-
-    .top-sub {
-      font-size: 0.75rem;
-      color: var(--muted);
-      margin-top: 2px;
-    }
-
-    .conn-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 11px;
-      border-radius: 999px;
-      font-size: 0.74rem;
-      font-weight: 700;
-      background: rgba(34, 197, 94, 0.14);
-      color: #4ade80;
-      border: 1px solid rgba(74, 222, 128, 0.35);
-    }
-
-    .dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: currentColor;
-    }
-
-    .card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 16px;
-      margin-bottom: 12px;
-    }
-
-    .status-line {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.84rem;
-      color: var(--muted);
-      margin-bottom: 10px;
-    }
-
-    .status-line strong {
-      font-size: 0.9rem;
-    }
-
-    .btn {
-      border: none;
-      border-radius: 12px;
-      padding: 13px 14px;
-      font-size: 0.9rem;
-      font-weight: 800;
-      cursor: pointer;
-      transition: transform 0.12s ease, opacity 0.2s ease;
-    }
-
-    .btn:active {
-      transform: scale(0.98);
-    }
-
-    .btn-gold {
-      width: 100%;
-      background: linear-gradient(135deg, var(--gold), var(--gold-light));
-      color: #09090b;
-    }
-
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .btn-dark {
-      background: var(--bg-soft);
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-
-    .btn-danger {
-      width: 100%;
-      margin-top: 10px;
-      background: rgba(239, 68, 68, 0.15);
-      color: #f87171;
-      border: 1px solid rgba(239, 68, 68, 0.45);
-    }
-
-    .panic-box {
-      display: none;
-      background: rgba(239, 68, 68, 0.16);
-      border: 1px solid rgba(239, 68, 68, 0.45);
-      color: #fca5a5;
-      padding: 10px 12px;
-      border-radius: 12px;
-      font-size: 0.8rem;
-      line-height: 1.5;
-      margin-bottom: 10px;
-    }
-
-    .kpi-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-
-    .kpi-box {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 14px;
-    }
-
-    .kpi-label {
-      font-size: 0.76rem;
-      color: var(--muted);
-    }
-
-    .kpi-val {
-      font-size: 1.22rem;
-      font-weight: 900;
-      color: var(--gold-light);
-      margin-top: 6px;
-    }
-
-    /* التبويبات */
-    .tabs {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 6px;
-      margin-bottom: 12px;
-    }
-
-    .tab-btn {
-      background: transparent;
-      color: var(--muted);
-      border: none;
-      border-radius: 11px;
-      padding: 10px 6px;
-      font-size: 0.82rem;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .tab-btn.active {
-      background: linear-gradient(135deg, var(--gold), var(--gold-light));
-      color: #09090b;
-    }
-
-    .tab-panel {
-      display: none;
-    }
-
-    .tab-panel.active {
-      display: block;
-    }
-
-    .section-heading {
-      font-size: 0.95rem;
-      font-weight: 800;
-      color: var(--gold-light);
-      margin-bottom: 12px;
-    }
-
-    .trade-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--bg-soft);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 13px;
-      padding: 12px;
-      margin-bottom: 8px;
-    }
-
-    .trade-main {
-      font-size: 0.86rem;
-      font-weight: 700;
-    }
-
-    .trade-sub {
-      font-size: 0.74rem;
-      color: var(--muted);
-      margin-top: 3px;
-    }
-
-    .pnl-pos {
-      color: #4ade80;
-      font-weight: 800;
-      font-size: 0.9rem;
-    }
-
-    .pnl-neg {
-      color: #f87171;
-      font-weight: 800;
-      font-size: 0.9rem;
-    }
-
-    .slider-item {
-      margin-bottom: 14px;
-    }
-
-    .slider-head {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.84rem;
-      margin-bottom: 6px;
-    }
-
-    .slider-val {
-      color: var(--gold-light);
-      font-weight: 800;
-    }
-
-    input[type="range"] {
-      width: 100%;
-      accent-color: var(--gold);
-    }
-
-    .toast {
-      position: fixed;
-      bottom: 18px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #1b1708;
-      color: var(--gold-light);
-      border: 1px solid var(--gold);
-      padding: 10px 16px;
-      border-radius: 12px;
-      font-size: 0.82rem;
-      font-weight: 700;
-      display: none;
-      z-index: 99;
-    }
-
-    .logout-link {
-      width: 100%;
-      margin-top: 8px;
-      background: transparent;
-      color: var(--muted);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      font-size: 0.8rem;
-      padding: 10px;
-    }
-  </style>
+  .form-group { margin-bottom: 12px; }
+  .form-group label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+  .form-group input, .form-group select { width: 100%; background: #0b0d10; border: 1px solid var(--border); color: var(--text); padding: 12px; border-radius: 10px; font-size: 14px; }
+</style>
 </head>
 <body>
-  <div class="app-wrap">
-    <!-- شاشة تسجيل الدخول -->
-    <section class="login-card" id="loginView">
-      <div class="brand-badge">QUANT EDGE • نظام خاص</div>
-      <h1 class="login-title">تسجيل الدخول</h1>
-      <p class="login-desc">
-        لوحة التحكم الخاصة بمراقبة وإدارة روبوت تداول الذهب <strong>XAUUSD</strong> على منصة XM MT5 من الآيفون.
-      </p>
 
-      <div class="input-group">
-        <label for="accessCode">رمز الدخول الخاص</label>
-        <input type="password" id="accessCode" class="input-control" placeholder="أدخل رمز الدخول (التجريبي: 7777)" />
-      </div>
+<div id="login-screen">
+  <div class="logo">QUANT EDGE</div>
+  <div class="sub">نظام التداول الآلي السحابي • XAUUSD</div>
+  <input type="password" id="pin-input" maxlength="4" placeholder="••••" inputmode="numeric">
+  <button class="btn-gold" onclick="checkPin()">دخول اللوحة</button>
+</div>
 
-      <div class="error-msg" id="loginError">رمز الدخول غير صحيح. جرّب الرمز الافتراضي: 7777</div>
-      <button class="btn btn-gold" onclick="handleLogin()">دخول إلى لوحة التحكم</button>
-    </section>
-
-    <!-- لوحة التحكم الرئيسية -->
-    <section id="dashboardView">
-      <header class="top-bar">
-        <div>
-          <div class="top-title">QUANT EDGE</div>
-          <div class="top-sub">الذهب XAUUSD • وسيط XM (MT5)</div>
-        </div>
-        <div class="conn-badge" id="mt5Badge">
-          <span class="dot"></span>
-          <span id="mt5Text">MT5 متصل</span>
-        </div>
-      </header>
-
-      <div class="card">
-        <div class="panic-box" id="panicBox">
-          تم تفعيل <strong>الإيقاف الطارئ</strong>: تم إيقاف التداول الآلي وإغلاق الصفقات المفتوحة.
-        </div>
-
-        <div class="status-line">
-          <span>حالة المحرك الآلي:</span>
-          <strong id="botStatusLabel" style="color: var(--green);">نشط (الجلسة الأمريكية)</strong>
-        </div>
-
-        <div class="grid-2">
-          <button class="btn btn-gold" onclick="setBotActive(true)">تشغيل الروبوت</button>
-          <button class="btn btn-dark" onclick="setBotActive(false)">إيقاف مؤقت</button>
-        </div>
-
-        <button class="btn btn-danger" onclick="activateEmergencyStop()">إيقاف طارئ وإغلاق الصفقات</button>
-      </div>
-
-      <div class="kpi-grid">
-        <div class="kpi-box">
-          <div class="kpi-label">رصيد الحساب (Balance)</div>
-          <div class="kpi-val" id="balanceDisplay">$10,000.00</div>
-        </div>
-        <div class="kpi-box">
-          <div class="kpi-label">الربح / الخسارة العائمة</div>
-          <div class="kpi-val pnl-pos" id="floatingDisplay">+$185.00</div>
-        </div>
-      </div>
-
-      <!-- التبويبات -->
-      <nav class="tabs">
-        <button class="tab-btn active" data-tab="openTab" onclick="switchTab('openTab', this)">الصفقات المفتوحة</button>
-        <button class="tab-btn" data-tab="historyTab" onclick="switchTab('historyTab', this)">سجل التداول</button>
-        <button class="tab-btn" data-tab="settingsTab" onclick="switchTab('settingsTab', this)">الإعدادات</button>
-      </nav>
-
-      <!-- تبويب الصفقات المفتوحة -->
-      <div class="tab-panel active" id="openTab">
-        <div class="card">
-          <div class="section-heading">الصفقات النشطة حالياً</div>
-          <div id="openPositionsList">
-            <div class="trade-row">
-              <div>
-                <div class="trade-main">شراء XAUUSD • 0.15 Lot</div>
-                <div class="trade-sub">أورد بلوك + شمعة ريجيكشن • وقف 2648.50 • هدف 2663.50</div>
-              </div>
-              <div class="pnl-pos">+$185.00</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- تبويب سجل التداول -->
-      <div class="tab-panel" id="historyTab">
-        <div class="card">
-          <div class="section-heading">سجل الصفقات المنفذة</div>
-          <div class="trade-row">
-            <div>
-              <div class="trade-main">بيع XAUUSD (مغلقة) • 0.20 Lot</div>
-              <div class="trade-sub">هدف 1:2 • الجلسة الأمريكية</div>
-            </div>
-            <div class="pnl-pos">+$260.00</div>
-          </div>
-          <div class="trade-row">
-            <div>
-              <div class="trade-main">شراء XAUUSD (مغلقة) • 0.10 Lot</div>
-              <div class="trade-sub">هدف 1:3 • منطقة سيولة</div>
-            </div>
-            <div class="pnl-pos">+$195.00</div>
-          </div>
-          <div class="trade-row">
-            <div>
-              <div class="trade-main">بيع XAUUSD (مغلقة) • 0.15 Lot</div>
-              <div class="trade-sub">وقف خسارة منضبط • -1.0%</div>
-            </div>
-            <div class="pnl-neg">-$100.00</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- تبويب الإعدادات -->
-      <div class="tab-panel" id="settingsTab">
-        <div class="card">
-          <div class="section-heading">إعدادات المخاطرة والتنفيذ</div>
-
-          <div class="slider-item">
-            <div class="slider-head">
-              <span>مخاطرة كل صفقة</span>
-              <span class="slider-val" id="riskValText">1.0%</span>
-            </div>
-            <input type="range" id="riskInput" min="0.25" max="3" step="0.25" value="1" oninput="syncSettingLabels()" />
-          </div>
-
-          <div class="slider-item">
-            <div class="slider-head">
-              <span>حد الخسارة اليومي</span>
-              <span class="slider-val" id="dailyLossValText">3.0%</span>
-            </div>
-            <input type="range" id="dailyLossInput" min="1" max="8" step="0.5" value="3" oninput="syncSettingLabels()" />
-          </div>
-
-          <div class="slider-item">
-            <div class="slider-head">
-              <span>نسبة العائد للمخاطرة (R:R)</span>
-              <span class="slider-val" id="rrValText">1:2.0</span>
-            </div>
-            <input type="range" id="rrInput" min="1.5" max="4" step="0.5" value="2" oninput="syncSettingLabels()" />
-          </div>
-
-          <div class="input-group">
-            <label for="sessionWindow">نافذة التداول (الجلسة الأمريكية)</label>
-            <select id="sessionWindow" class="input-control">
-              <option value="pre_us_ny" selected>ما قبل افتتاح نيويورك وحتى منتصف الجلسة</option>
-              <option value="full_us">الجلسة الأمريكية الكاملة</option>
-            </select>
-          </div>
-
-          <button class="btn btn-gold" onclick="saveBotSettings()">حفظ الإعدادات</button>
-          <button class="btn logout-link" onclick="handleLogout()">تسجيل الخروج</button>
-        </div>
-      </div>
-    </section>
+<div id="dashboard">
+  <div class="card header">
+    <div>
+      <div style="font-weight:800; font-size:18px; color:var(--gold);">QUANT EDGE</div>
+      <div style="font-size:12px; color:var(--muted);">الذهب XAUUSD • وسيط XM (MT5)</div>
+    </div>
+    <div id="mt5-status" class="badge offline"><span class="dot"></span> بانتظار MT5</div>
   </div>
 
-  <div class="toast" id="toastBox"></div>
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px;">
+      <span style="color:var(--muted);">حالة المحرك الآلي:</span>
+      <span id="bot-state-text" style="color:var(--gold); font-weight:700;">جاري المزامنة...</span>
+    </div>
+    <div class="controls">
+      <button id="btn-start" class="btn" onclick="sendCommand('START')">تشغيل الروبوت</button>
+      <button id="btn-pause" class="btn" onclick="sendCommand('PAUSE')">إيقاف مؤقت</button>
+      <button class="btn btn-panic" onclick="panicClose()">إيقاف طارئ وإغلاق الصفقات</button>
+    </div>
+  </div>
 
-  <script>
-    const PASSCODE = "7777";
+  <div class="stats">
+    <div class="card">
+      <div class="stat-label">رصيد الحساب (Balance)</div>
+      <div id="acc-balance" class="stat-val">$0.00</div>
+    </div>
+    <div class="card">
+      <div class="stat-label">الربح / الخسارة العائمة</div>
+      <div id="acc-profit" class="stat-val">$0.00</div>
+    </div>
+  </div>
 
-    function showToast(message) {
-      const toast = document.getElementById("toastBox");
-      toast.textContent = message;
-      toast.style.display = "block";
-      clearTimeout(window.toastTimer);
-      window.toastTimer = setTimeout(() => {
-        toast.style.display = "none";
-      }, 2400);
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('open', this)">الصفقات المفتوحة</div>
+    <div class="tab" onclick="switchTab('history', this)">سجل التداول</div>
+    <div class="tab" onclick="switchTab('settings', this)">الإعدادات</div>
+  </div>
+
+  <div id="tab-open" class="card">
+    <div style="font-weight:700; font-size:15px; margin-bottom:8px;">الصفقات النشطة حالياً</div>
+    <div id="open-trades-list" style="font-size:13px; color:var(--muted);">لا توجد صفقات مفتوحة حالياً أو بانتظار اتصال MT5...</div>
+  </div>
+
+  <div id="tab-history" class="card" style="display:none;">
+    <div style="font-weight:700; font-size:15px; margin-bottom:8px;">آخر الصفقات المغلقة</div>
+    <div id="history-list" style="font-size:13px; color:var(--muted);">لا يوجد سجل صفقات مسجل بعد.</div>
+  </div>
+
+  <div id="tab-settings" class="card" style="display:none;">
+    <div style="font-weight:700; font-size:15px; margin-bottom:12px;">إعدادات إدارة المخاطر</div>
+    <div class="form-group">
+      <label>حجم العقد الثابت (Lot Size)</label>
+      <input type="number" id="cfg-lot" step="0.01" value="0.05">
+    </div>
+    <div class="form-group">
+      <label>نسبة المخاطرة للعائد (Risk : Reward)</label>
+      <select id="cfg-rr">
+        <option value="2">1 : 2</option>
+        <option value="3" selected>1 : 3</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>الحد الأقصى للخسارة اليومية ($)</label>
+      <input type="number" id="cfg-maxloss" value="200">
+    </div>
+    <button class="btn-gold" style="width:100%;" onclick="saveSettings()">حفظ ومزامنة الإعدادات</button>
+  </div>
+</div>
+
+<script>
+  const DB_URL = "https://nash-67e28-default-rtdb.europe-west1.firebasedatabase.app";
+  const PIN = "7777";
+
+  function checkPin() {
+    if (document.getElementById("pin-input").value === PIN) {
+      document.getElementById("login-screen").style.display = "none";
+      document.getElementById("dashboard").style.display = "flex";
+      initData();
+      setInterval(syncFromCloud, 3000);
+    } else {
+      alert("رمز الدخول غير صحيح");
     }
+  }
 
-    function handleLogin() {
-      const code = document.getElementById("accessCode").value.trim();
-      const err = document.getElementById("loginError");
-      if (code === PASSCODE) {
-        err.style.display = "none";
-        document.getElementById("loginView").style.display = "none";
-        document.getElementById("dashboardView").style.display = "block";
-        loadSavedSettings();
+  async function initData() {
+    const res = await fetch(`${DB_URL}/quant_edge.json`);
+    const data = await res.json();
+    if (!data) {
+      await fetch(`${DB_URL}/quant_edge.json`, {
+        method: "PUT",
+        body: JSON.stringify({
+          command: "PAUSE",
+          panic: false,
+          settings: { lot: 0.05, rr: 3, maxLoss: 200 },
+          account: { balance: 0, profit: 0, connected: false, lastPing: 0 },
+          openTrades: []
+        })
+      });
+    }
+    syncFromCloud();
+  }
+
+  async function syncFromCloud() {
+    try {
+      const res = await fetch(`${DB_URL}/quant_edge.json`);
+      const data = await res.json();
+      if (!data) return;
+
+      const cmd = data.command || "PAUSE";
+      document.getElementById("btn-start").className = cmd === "START" ? "btn active-start" : "btn";
+      document.getElementById("btn-pause").className = cmd === "PAUSE" ? "btn active-pause" : "btn";
+      document.getElementById("bot-state-text").innerText = cmd === "START" ? "نشط (يعمل الآن)" : "متوقف مؤقتاً";
+      document.getElementById("bot-state-text").style.color = cmd === "START" ? "var(--green)" : "var(--gold)";
+
+      if (data.account) {
+        document.getElementById("acc-balance").innerText = "$" + Number(data.account.balance || 0).toFixed(2);
+        const prof = Number(data.account.profit || 0);
+        const profEl = document.getElementById("acc-profit");
+        profEl.innerText = (prof >= 0 ? "+$" : "-$") + Math.abs(prof).toFixed(2);
+        profEl.className = "stat-val " + (prof >= 0 ? "profit-pos" : "profit-neg");
+
+        const now = Math.floor(Date.now() / 1000);
+        const isOnline = data.account.lastPing && (now - data.account.lastPing < 20);
+        const statusEl = document.getElementById("mt5-status");
+        statusEl.className = isOnline ? "badge online" : "badge offline";
+        statusEl.innerHTML = isOnline ? '<span class="dot"></span> MT5 متصل' : '<span class="dot"></span> بانتظار MT5';
+      }
+
+      const listEl = document.getElementById("open-trades-list");
+      if (data.openTrades && data.openTrades.length > 0) {
+        listEl.innerHTML = data.openTrades.map(t => `
+          <div class="trade-item">
+            <div class="trade-top">
+              <span>${t.symbol} • ${t.lot} Lot (${t.type})</span>
+              <span style="color:${t.profit >= 0 ? 'var(--green)' : 'var(--red)'};">${t.profit >= 0 ? '+' : ''}$${Number(t.profit).toFixed(2)}</span>
+            </div>
+            <div class="trade-sub">الدخول: ${t.openPrice} • وقف: ${t.sl} • هدف: ${t.tp}</div>
+          </div>
+        `).join("");
       } else {
-        err.style.display = "block";
+        listEl.innerHTML = "لا توجد صفقات مفتوحة حالياً.";
       }
-    }
+    } catch (e) { console.error(e); }
+  }
 
-    function handleLogout() {
-      document.getElementById("accessCode").value = "";
-      document.getElementById("dashboardView").style.display = "none";
-      document.getElementById("loginView").style.display = "block";
-    }
+  async function sendCommand(cmd) {
+    await fetch(`${DB_URL}/quant_edge/command.json`, { method: "PUT", body: JSON.stringify(cmd) });
+    syncFromCloud();
+  }
 
-    function setBotActive(active) {
-      document.getElementById("panicBox").style.display = "none";
-      const label = document.getElementById("botStatusLabel");
-      if (active) {
-        label.textContent = "نشط (الجلسة الأمريكية)";
-        label.style.color = "#4ade80";
-        showToast("تم تشغيل الروبوت على XAUUSD");
-      } else {
-        label.textContent = "متوقف مؤقتاً";
-        label.style.color = "#facc15";
-        showToast("تم إيقاف الروبوت مؤقتاً");
-      }
-    }
+  async function panicClose() {
+    if (!confirm("تأكيد: إيقاف الروبوت وإغلاق جميع الصفقات المفتوحة فوراً؟")) return;
+    await fetch(`${DB_URL}/quant_edge.json`, {
+      method: "PATCH",
+      body: JSON.stringify({ command: "PAUSE", panic: true })
+    });
+    alert("تم إرسال أمر الإغلاق الطارئ إلى منصة MT5.");
+    syncFromCloud();
+  }
 
-    function activateEmergencyStop() {
-      document.getElementById("panicBox").style.display = "block";
-      const label = document.getElementById("botStatusLabel");
-      label.textContent = "إيقاف طارئ مفعّل";
-      label.style.color = "#f87171";
-      document.getElementById("floatingDisplay").textContent = "$0.00";
-      document.getElementById("floatingDisplay").className = "kpi-val";
-      document.getElementById("openPositionsList").innerHTML =
-        '<div class="trade-row"><div><div class="trade-main">لا توجد صفقات مفتوحة حالياً</div><div class="trade-sub">تم إغلاق الصفقات بفعل الإيقاف الطارئ</div></div><div class="kpi-label">0</div></div>';
-      showToast("تم تفعيل الإيقاف الطارئ");
-    }
+  async function saveSettings() {
+    const settings = {
+      lot: parseFloat(document.getElementById("cfg-lot").value),
+      rr: parseInt(document.getElementById("cfg-rr").value),
+      maxLoss: parseFloat(document.getElementById("cfg-maxloss").value)
+    };
+    await fetch(`${DB_URL}/quant_edge/settings.json`, { method: "PUT", body: JSON.stringify(settings) });
+    alert("تم حفظ الإعدادات ومزامنتها مع السحابة.");
+  }
 
-    function switchTab(tabId, btnEl) {
-      document.querySelectorAll(".tab-panel").forEach((panel) => panel.classList.remove("active"));
-      document.querySelectorAll(".tab-btn").forEach((btn) => btn.classList.remove("active"));
-      document.getElementById(tabId).classList.add("active");
-      btnEl.classList.add("active");
-    }
-
-    function syncSettingLabels() {
-      const r = parseFloat(document.getElementById("riskInput").value).toFixed(2);
-      const l = parseFloat(document.getElementById("dailyLossInput").value).toFixed(1);
-      const rr = parseFloat(document.getElementById("rrInput").value).toFixed(1);
-      document.getElementById("riskValText").textContent = r + "%";
-      document.getElementById("dailyLossValText").textContent = l + "%";
-      document.getElementById("rrValText").textContent = "1:" + rr;
-    }
-
-    function saveBotSettings() {
-      const settings = {
-        risk: document.getElementById("riskInput").value,
-        dailyLoss: document.getElementById("dailyLossInput").value,
-        rr: document.getElementById("rrInput").value,
-        session: document.getElementById("sessionWindow").value
-      };
-      localStorage.setItem("quant_edge_settings", JSON.stringify(settings));
-      showToast("تم حفظ إعدادات المخاطرة بنجاح");
-    }
-
-    function loadSavedSettings() {
-      const raw = localStorage.getItem("quant_edge_settings");
-      if (!raw) {
-        syncSettingLabels();
-        return;
-      }
-      try {
-        const s = JSON.parse(raw);
-        if (s.risk) document.getElementById("riskInput").value = s.risk;
-        if (s.dailyLoss) document.getElementById("dailyLossInput").value = s.dailyLoss;
-        if (s.rr) document.getElementById("rrInput").value = s.rr;
-        if (s.session) document.getElementById("sessionWindow").value = s.session;
-      } catch (e) {}
-      syncSettingLabels();
-    }
-  </script>
+  function switchTab(name, el) {
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    el.classList.add("active");
+    document.getElementById("tab-open").style.display = name === "open" ? "block" : "none";
+    document.getElementById("tab-history").style.display = name === "history" ? "block" : "none";
+    document.getElementById("tab-settings").style.display = name === "settings" ? "block" : "none";
+  }
+</script>
 </body>
 </html>
